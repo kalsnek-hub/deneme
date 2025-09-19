@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const templateParams = {
             from_name: formObj.ad_soyad,
             from_email: formObj.email,
-            to_email: 'kalsnek@gmail.com', // Siparişin size gelmesi için
+            to_email: 'kalsnek123@gmail.com', // Siparişin size gelmesi için
             reply_to: formObj.email,
             ad_soyad: formObj.ad_soyad,
             email: formObj.email,
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             siparis_ozet: siparisMetni
         };
 
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams) // Buraya Email.js servis ve şablon ID'lerini girin
+        emailjs.send('service_iuypx76', 'template_b0kt7a5', templateParams) // Servis ve şablon ID'leriniz buraya eklendi
             .then(function(response) {
                 alert('Siparişiniz başarıyla gönderildi! Siparişiniz onaylandığında e-posta ile bilgilendirileceksiniz.');
                 tamamlamaModal.style.display = 'none';
