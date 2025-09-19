@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             sepetiGuncelle();
-            urunModal.style.display = 'none';
+            urunModal.style.display = 'none'; // Sepete ekleyince pencereyi kapat
         } else {
             alert('Lütfen geçerli bir miktar girin.');
         }
