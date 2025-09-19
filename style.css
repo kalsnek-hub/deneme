@@ -157,11 +157,12 @@ main {
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
+    position: relative; /* Ekledim: Z-index'in çalışması için gerekli */
 }
 
 .urun:hover img {
     transform: scale(2);
-    z-index: 1;
+    z-index: 2; /* Ekledim: Görselin diğer öğelerin üzerine gelmesini sağlar */
 }
 
 .bilgi-penceresi {
