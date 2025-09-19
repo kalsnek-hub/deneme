@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 56 ürünün tüm verileri burada saklanıyor
     const urunVerileri = [];
     for (let i = 1; i <= 56; i++) {
         urunVerileri.push({
             id: i,
             ad: `Ürün ${i}`,
             aciklama: `Bu, ${i}. ürünün kısa açıklamasıdır.`,
+            fiyat_adet: 25, // Her ürün için bir adet fiyatı belirledik
+            fiyat_kilo: 50, // Her ürün için bir kilo fiyatı belirledik
             kategori: (i <= 12) ? 'tatlilar' :
                        (i <= 24) ? 'tuzlular' :
                        (i <= 36) ? 'kurabiyeler' :
@@ -15,21 +16,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const anaSayfaResmi = document.getElementById('ana-sayfa-resmi');
+    const slideshowContainer = document.getElementById('slideshow-container');
     const urunListelemeAlani = document.getElementById('urun-listeleme-alani');
     const urunListesiContainer = document.getElementById('urun-listesi-container');
     const kategoriBaslik = urunListelemeAlani.querySelector('h2');
     const siparisListesi = document.getElementById('siparis-listesi');
     const tamamlaBtn = document.getElementById('tamamla-btn');
-    const siparisler = {}; // Siparişleri tutacak nesne
+    const siparisler = {};
+    const homeLinks = document.querySelectorAll('#home-link, .header-title');
 
     const urunModal = document.getElementById('modal');
     const tamamlamaModal = document.getElementById('tamamlama-modal');
-    const tamamlamaListesi = document.getElementById('tamamlama-listesi');
-    const onaylaBtn = document.getElementById('onayla-btn');
+    const siparisGonderForm = document.getElementById('siparis-gonder-form');
+    const siparisOzetField = document.getElementById('siparis-ozet-field');
+    const siparisOzetDiv = document.getElementById('siparis-ozet');
+    const toplamUrunSpan = document.getElementById('toplam-urun');
+    const toplamTutarSpan = document.getElementById('toplam-tutar');
+
+    // Slayt gösterisini başlatma
+    function startSlideshow() {
+        slideshowContainer.innerHTML = '';
+        for (let i = 1; i <= 56; i++) {
+            const img = document.createElement('img');
+            img.src = `images/${i}.jpg`;
+            img.alt = `Ürün ${i}`;
+            slideshowContainer.appendChild(img);
+        }
+
+        const images = slideshowContainer.querySelectorAll('img');
+        let currentIndex = 0;
+        if (images.length > 0) {
+            images[currentIndex].classList.add('active');
+
+            setInterval(() => {
+                images[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add('active');
+            }, 4000);
+        }
+    }
     
-    // Google Form bağlantısı
-    const googleFormLink = "https://docs.google.com/forms/d/e/1FAIpQLSeOgmoe6PxEk6IMV-ipL5HapPz4STqi9muOiEidm1kfzz3eaw/viewform";
+    startSlideshow();
+
+    // Ana sayfa butonları ve başlık
+    homeLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            urunListelemeAlani.style.display = 'none';
+            slideshowContainer.style.display = 'block';
+        });
+    });
 
     // Kategori menülerini dinleme
     document.querySelectorAll('header nav ul li a').forEach(link => {
@@ -38,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const kategori = e.target.dataset.kategori;
             const baslik = e.target.innerText;
             
-            anaSayfaResmi.style.display = 'none';
+            slideshowContainer.style.display = 'none';
             urunListelemeAlani.style.display = 'block';
 
             urunleriListele(kategori, baslik);
@@ -66,13 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
             urunListesiContainer.appendChild(urunElementi);
         });
         
-        // Dinamik olarak eklenen ürünlere tıklama olayını bağlama
         document.querySelectorAll('.urun').forEach(urun => {
             urun.addEventListener('click', (e) => {
                 const urunId = e.currentTarget.dataset.id;
                 const secilenUrun = urunVerileri.find(u => u.id == urunId);
                 
                 document.getElementById('modal-urun-adi').innerText = secilenUrun.ad;
+                document.getElementById('adet-fiyat').innerText = secilenUrun.fiyat_adet;
+                document.getElementById('kilo-fiyat').innerText = secilenUrun.fiyat_kilo;
                 urunModal.style.display = 'block';
                 urunModal.querySelector('.add-to-cart-btn').dataset.urunId = urunId;
             });
@@ -85,23 +122,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const secilenUrun = urunVerileri.find(u => u.id == urunId);
         let miktar;
         let birim;
+        let fiyat;
 
         if (document.querySelector('.tab-btn.active').dataset.tab === 'adet') {
-            miktar = document.getElementById('adet-input').value;
+            miktar = parseFloat(document.getElementById('adet-input').value);
             birim = "Adet";
+            fiyat = secilenUrun.fiyat_adet * miktar;
         } else {
-            miktar = document.getElementById('kilo-input').value;
+            miktar = parseFloat(document.getElementById('kilo-input').value);
             birim = "Kilo";
+            fiyat = secilenUrun.fiyat_kilo * miktar;
         }
 
         if (miktar && miktar > 0) {
             if (siparisler[urunId]) {
-                siparisler[urunId].miktar = parseFloat(siparisler[urunId].miktar) + parseFloat(miktar);
+                siparisler[urunId].miktar += miktar;
+                siparisler[urunId].tutar += fiyat;
             } else {
                 siparisler[urunId] = {
                     ad: secilenUrun.ad,
-                    miktar: parseFloat(miktar),
-                    birim: birim
+                    miktar: miktar,
+                    birim: birim,
+                    tutar: fiyat
                 };
             }
             
@@ -113,42 +155,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Sipariş listesini güncelleyen fonksiyon
+    // Sipariş listesini ve özeti güncelleyen fonksiyon
     function siparisListesiniGuncelle() {
         siparisListesi.innerHTML = '';
         const siparisKeys = Object.keys(siparisler);
+        let toplamTutar = 0;
+        let toplamUrunSayisi = 0;
+
         if (siparisKeys.length > 0) {
             tamamlaBtn.style.display = 'block';
+            siparisOzetDiv.style.display = 'block';
             siparisKeys.forEach(urunId => {
                 const siparis = siparisler[urunId];
                 const yeniSiparis = document.createElement('li');
-                yeniSiparis.innerHTML = `${siparis.ad} - ${siparis.miktar} ${siparis.birim}`;
+                yeniSiparis.innerHTML = `${siparis.ad} - ${siparis.miktar} ${siparis.birim} (${siparis.tutar.toFixed(2)} TL)`;
                 siparisListesi.appendChild(yeniSiparis);
+                toplamTutar += siparis.tutar;
+                toplamUrunSayisi++;
             });
         } else {
             tamamlaBtn.style.display = 'none';
+            siparisOzetDiv.style.display = 'none';
         }
+
+        toplamUrunSpan.innerText = toplamUrunSayisi;
+        toplamTutarSpan.innerText = toplamTutar.toFixed(2);
     }
 
     // Siparişi Tamamla butonu
     tamamlaBtn.addEventListener('click', () => {
-        tamamlamaListesi.innerHTML = '';
-        const siparisKeys = Object.keys(siparisler);
-        siparisKeys.forEach(urunId => {
-            const siparis = siparisler[urunId];
-            const siparisItem = document.createElement('li');
-            siparisItem.innerText = `${siparis.ad}: ${siparis.miktar} ${siparis.birim}`;
-            tamamlamaListesi.appendChild(siparisItem);
-        });
         tamamlamaModal.style.display = 'block';
     });
     
-    // Onayla butonu (Google Form'a yönlendirme)
-    onaylaBtn.addEventListener('click', () => {
-        window.open(googleFormLink, '_blank');
-        tamamlamaModal.style.display = 'none';
+    // Sipariş formunu gönderme
+    siparisGonderForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        let siparisMetni = "";
+        Object.keys(siparisler).forEach(urunId => {
+            const siparis = siparisler[urunId];
+            siparisMetni += `${siparis.ad}: ${siparis.miktar} ${siparis.birim} (${siparis.tutar.toFixed(2)} TL)\n`;
+        });
+        siparisMetni += `\nToplam Tutar: ${toplamTutarSpan.innerText} TL`;
+        
+        siparisOzetField.value = siparisMetni;
+        
+        const formData = new FormData(siparisGonderForm);
+        const formObj = Object.fromEntries(formData.entries());
+
+        const templateParams = {
+            from_name: formObj.ad_soyad,
+            from_email: formObj.email,
+            to_email: 'kalsnek@gmail.com', // Siparişin size gelmesi için
+            reply_to: formObj.email,
+            ad_soyad: formObj.ad_soyad,
+            email: formObj.email,
+            telefon: formObj.telefon,
+            adres: formObj.adres,
+            notlar: formObj.notlar,
+            teslimat: formObj.teslimat,
+            odeme: formObj.odeme,
+            siparis_ozet: siparisMetni
+        };
+
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams) // Buraya Email.js servis ve şablon ID'lerini girin
+            .then(function(response) {
+                alert('Siparişiniz başarıyla gönderildi! Siparişiniz onaylandığında e-posta ile bilgilendirileceksiniz.');
+                tamamlamaModal.style.display = 'none';
+                // Formu ve sepeti temizle
+                siparisGonderForm.reset();
+                Object.keys(siparisler).forEach(key => delete siparisler[key]);
+                siparisListesiniGuncelle();
+            }, function(error) {
+                alert('Sipariş gönderilirken bir hata oluştu: ' + JSON.stringify(error));
+            });
     });
-    
+
     // Modal kapatma butonları
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
