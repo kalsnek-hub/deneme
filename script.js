@@ -203,10 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(siparisGonderForm);
         const formObj = Object.fromEntries(formData.entries());
 
-        const templateParams = {
+        // 1. ADIM: Sipariş detaylarını size gönderme
+        const yourTemplateParams = {
             from_name: formObj.ad_soyad,
-            from_email: formObj.email,
-            to_email: 'kalsnek123@gmail.com', // Siparişin size gelmesi için
+            from_email: 'kalsnek123@gmail.com',
+            to_email: 'kalsnek123@gmail.com',
             reply_to: formObj.email,
             ad_soyad: formObj.ad_soyad,
             email: formObj.email,
@@ -218,16 +219,36 @@ document.addEventListener('DOMContentLoaded', () => {
             siparis_ozet: siparisMetni
         };
 
-        emailjs.send('service_iuypx76', 'template_b0kt7a5', templateParams) // Servis ve şablon ID'leriniz buraya eklendi
+        emailjs.send('service_iuypx76', 'template_pejv735', yourTemplateParams)
             .then(function(response) {
-                alert('Siparişiniz başarıyla gönderildi! Siparişiniz onaylandığında e-posta ile bilgilendirileceksiniz.');
-                tamamlamaModal.style.display = 'none';
-                // Formu ve sepeti temizle
-                siparisGonderForm.reset();
-                Object.keys(siparisler).forEach(key => delete siparisler[key]);
-                siparisListesiniGuncelle();
+                console.log('Sipariş başarıyla size iletildi.', response);
+
+                // 2. ADIM: Müşteriye sipariş onayı gönderme
+                const customerTemplateParams = {
+                    from_name: 'Bake With Ekin',
+                    from_email: 'kalsnek123@gmail.com',
+                    to_email: formObj.email,
+                    ad_soyad: formObj.ad_soyad,
+                    siparis_ozet: siparisMetni
+                };
+
+                emailjs.send('service_iuypx76', 'template_b0kt7a5', customerTemplateParams)
+                    .then(function(response) {
+                        alert('Siparişiniz başarıyla alındı ve size bir onay e-postası gönderildi!');
+                        tamamlamaModal.style.display = 'none';
+                        siparisGonderForm.reset();
+                        Object.keys(siparisler).forEach(key => delete siparisler[key]);
+                        siparisListesiniGuncelle();
+                    }, function(error) {
+                        alert('Siparişiniz alındı ancak onay e-postası gönderilirken bir hata oluştu: ' + JSON.stringify(error));
+                        tamamlamaModal.style.display = 'none';
+                        siparisGonderForm.reset();
+                        Object.keys(siparisler).forEach(key => delete siparisler[key]);
+                        siparisListesiniGuncelle();
+                    });
+
             }, function(error) {
-                alert('Sipariş gönderilirken bir hata oluştu: ' + JSON.stringify(error));
+                alert('Sipariş gönderilirken kritik bir hata oluştu: ' + JSON.stringify(error));
             });
     });
 
