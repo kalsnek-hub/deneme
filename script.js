@@ -203,12 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(siparisGonderForm);
         const formObj = Object.fromEntries(formData.entries());
 
-        // 1. ADIM: Sipariş detaylarını size gönderme
-        const yourTemplateParams = {
+        const templateParams = {
             from_name: formObj.ad_soyad,
-            from_email: 'kalsnek123@gmail.com',
-            to_email: 'kalsnek123@gmail.com',
-            reply_to: formObj.email,
+            from_email: 'kalsnek123@gmail.com', // Gönderici sizsiniz
+            to_email: formObj.email, // Müşteriye
+            cc_email: 'kalsnek123@gmail.com', // Kendinize kopya
+            reply_to: 'kalsnek123@gmail.com', // Yanıtlar size gelsin
             ad_soyad: formObj.ad_soyad,
             email: formObj.email,
             telefon: formObj.telefon,
@@ -219,33 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
             siparis_ozet: siparisMetni
         };
 
-        const serviceID = 'service_iuypx76';
-        const yourTemplateID = 'template_b0kt7a5';
-        const customerTemplateID = 'template_pejv735';
-
-        emailjs.send(serviceID, yourTemplateID, yourTemplateParams)
-            .then(function(response) {
-                console.log('Sipariş size başarıyla iletildi.', response);
-
-                // 2. ADIM: Müşteriye sipariş onayı gönderme
-                const customerTemplateParams = {
-                    from_name: 'Bake With Ekin',
-                    from_email: 'kalsnek123@gmail.com',
-                    to_email: formObj.email,
-                    ad_soyad: formObj.ad_soyad,
-                    siparis_ozet: siparisMetni
-                };
-
-                return emailjs.send(serviceID, customerTemplateID, customerTemplateParams);
-            })
+        emailjs.send('service_iuypx76', 'template_pejv735', templateParams)
             .then(function(response) {
                 alert('Siparişiniz başarıyla alındı ve size bir onay e-postası gönderildi!');
                 tamamlamaModal.style.display = 'none';
                 siparisGonderForm.reset();
                 Object.keys(siparisler).forEach(key => delete siparisler[key]);
                 siparisListesiniGuncelle();
-            })
-            .catch(function(error) {
+            }, function(error) {
                 alert('Sipariş gönderilirken bir hata oluştu: ' + JSON.stringify(error));
             });
     });
