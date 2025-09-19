@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const urunModal = document.getElementById('urun-modal');
     const bilgiModal = document.getElementById('bilgi-modal');
     const siparisGonderForm = document.getElementById('siparis-gonder-form');
-    const homeLinks = document.querySelectorAll('#home-link, .header-title');
+    const homeLinks = document.querySelectorAll('#home-link, #title-link');
 
-    let sepet = {}; // Sepet içeriğini tutacak ana obje
+    let sepet = {};
 
     // Üçlü slayt gösterisi
     function startSlideshow(container) {
@@ -117,6 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('urun-modal-adi').innerText = secilenUrun.ad;
                 document.getElementById('adet-input').value = 1;
                 document.getElementById('kilo-input').value = 0.5;
+
+                const adetFiyatSpan = document.createElement('span');
+                adetFiyatSpan.id = 'adet-fiyat-span';
+                adetFiyatSpan.innerText = `${secilenUrun.fiyat_adet} TL`;
+                document.getElementById('adet-tab').appendChild(adetFiyatSpan);
+                
+                const kiloFiyatSpan = document.createElement('span');
+                kiloFiyatSpan.id = 'kilo-fiyat-span';
+                kiloFiyatSpan.innerText = `${secilenUrun.fiyat_kilo} TL`;
+                document.getElementById('kilo-tab').appendChild(kiloFiyatSpan);
+
                 urunModal.style.display = 'block';
                 urunModal.querySelector('.add-to-cart-btn').dataset.urunId = urunId;
             });
@@ -156,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             sepetiGuncelle();
-            urunModal.style.display = 'none';
+            urunModal.style.display = 'none'; // Sepete ekleyince pencereyi kapat
         } else {
             alert('Lütfen geçerli bir miktar girin.');
         }
@@ -243,10 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Size mail gönderme
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: 'kalsnek123@gmail.com', from_email: 'kalsnek123@gmail.com' })
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: 'kalsnek123@gmail.com' })
             .then(() => {
                 // Müşteriye onay maili gönderme
-                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: formObj.email, from_email: 'kalsnek123@gmail.com' })
+                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: formObj.email })
                     .then(() => {
                         alert('Siparişiniz alınmıştır. En kısa sürede sizinle iletişime geçilecektir. Bizi seçtiğiniz için teşekkür ederiz.');
                         bilgiModal.style.display = 'none';
@@ -271,9 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', (e) => e.target.closest('.modal').style.display = 'none');
     });
-    window.onclick = (event) => {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    };
+
+    // Kilo sekmesine tıklandığında aktif hale gelsin
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const activeTab = document.querySelector(`.tab-content[data-tab="${btn.dataset.tab}"]`);
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            activeTab.style.display = 'block';
+        });
+    });
+
 });
