@@ -198,17 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         siparisMetni += `\nToplam Tutar: ${toplamTutarSpan.innerText} TL`;
         
-        siparisOzetField.value = siparisMetni;
-        
+        // Form verilerini ve sipariş özetini içeren tek bir obje oluşturuyoruz
         const formData = new FormData(siparisGonderForm);
         const formObj = Object.fromEntries(formData.entries());
-
+        
         const templateParams = {
-            from_name: formObj.ad_soyad,
-            from_email: 'kalsnek123@gmail.com', // Gönderici sizsiniz
-            to_email: formObj.email, // Müşteriye
-            cc_email: 'kalsnek123@gmail.com', // Kendinize kopya
-            reply_to: 'kalsnek123@gmail.com', // Yanıtlar size gelsin
             ad_soyad: formObj.ad_soyad,
             email: formObj.email,
             telefon: formObj.telefon,
@@ -219,15 +213,28 @@ document.addEventListener('DOMContentLoaded', () => {
             siparis_ozet: siparisMetni
         };
 
-        emailjs.send('service_iuypx76', 'template_pejv735', templateParams)
+        // Hem size hem de müşteriye mail gönderimi
+        emailjs.send('service_iuypx76', 'template_pejv735', { ...templateParams, to_email: 'kalsnek123@gmail.com', from_email: 'kalsnek123@gmail.com' })
             .then(function(response) {
-                alert('Siparişiniz başarıyla alındı ve size bir onay e-postası gönderildi!');
-                tamamlamaModal.style.display = 'none';
-                siparisGonderForm.reset();
-                Object.keys(siparisler).forEach(key => delete siparisler[key]);
-                siparisListesiniGuncelle();
+                console.log('Sipariş başarıyla size iletildi.', response);
+
+                emailjs.send('service_iuypx76', 'template_pejv735', { ...templateParams, to_email: formObj.email, from_email: 'kalsnek123@gmail.com' })
+                    .then(function(response) {
+                        alert('Siparişiniz başarıyla alındı ve size bir onay e-postası gönderildi!');
+                        tamamlamaModal.style.display = 'none';
+                        siparisGonderForm.reset();
+                        Object.keys(siparisler).forEach(key => delete siparisler[key]);
+                        siparisListesiniGuncelle();
+                    }, function(error) {
+                        alert('Siparişiniz alındı ancak onay e-postası gönderilirken bir hata oluştu: ' + JSON.stringify(error));
+                        tamamlamaModal.style.display = 'none';
+                        siparisGonderForm.reset();
+                        Object.keys(siparisler).forEach(key => delete siparisler[key]);
+                        siparisListesiniGuncelle();
+                    });
+
             }, function(error) {
-                alert('Sipariş gönderilirken bir hata oluştu: ' + JSON.stringify(error));
+                alert('Sipariş gönderilirken kritik bir hata oluştu: ' + JSON.stringify(error));
             });
     });
 
