@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ev Yapımı Lezzetler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Ev Yapımı Lezzetler</h1>
+        <nav>
+            <ul>
+                <li><a href="#" data-kategori="tatlilar">Tatlılar</a></li>
+                <li><a href="#" data-kategori="tuzlular">Tuzlular</a></li>
+                <li><a href="#" data-kategori="kurabiyeler">Kurabiyeler</a></li>
+                <li><a href="#" data-kategori="atistirmaliklar">Atıştırmalıklar</a></li>
+                <li><a href="#" data-kategori="fit-tarifler">Fit Tarifler</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="ana-sayfa-resmi">
+            <img src="images/66.jpg" alt="Ana Sayfa Resmi" class="ana-resim">
+        </div>
+        
+        <section id="urun-listeleme-alani">
+            <h2></h2>
+            <div id="urun-listesi-container" class="urun-listesi">
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        <div id="siparis-formu">
+            <h2>Siparişiniz</h2>
+            <ul id="siparis-listesi"></ul>
+            <button id="tamamla-btn" style="display: none;">Siparişi Tamamla</button>
+        </div>
+    </footer>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3 id="modal-urun-adi"></h3>
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="adet">Adet</button>
+                <button class="tab-btn" data-tab="kilo">Kilo</button>
+            </div>
+            <div id="adet-tab" class="tab-content active">
+                <p>Adet giriniz:</p>
+                <input type="number" id="adet-input" min="1" value="1">
+            </div>
+            <div id="kilo-tab" class="tab-content">
+                <p>Kilo giriniz:</p>
+                <input type="number" id="kilo-input" min="0.1" step="0.1" value="0.5">
+            </div>
+            <button class="add-to-cart-btn">Sepete Ekle</button>
+        </div>
+    </div>
+    
+    <div id="tamamlama-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Sipariş Özeti</h2>
+            <ul id="tamamlama-listesi"></ul>
+            <button id="onayla-btn">Bilgileri Gir ve Siparişi Onayla</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
