@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urunListelemeAlani = document.getElementById('urun-listeleme-alani');
     const urunListesiContainer = document.getElementById('urun-listesi-container');
     const kategoriBaslik = urunListelemeAlani.querySelector('h2');
-    const sepetIcon = document.getElementById('sepet-ikona');
+    const sepetIkon = document.getElementById('sepet-ikonu');
     const sepetSayac = document.getElementById('sepet-sayaci');
     const sepetModal = document.getElementById('sepet-modal');
     const sepetListesi = document.getElementById('sepet-listesi');
@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sepetOzetToplamUrun = document.getElementById('sepet-toplam-urun');
     const sepetOzetToplamTutar = document.getElementById('sepet-toplam-tutar');
 
-    const urunModal = document.getElementById('modal');
-    const tamamlamaModal = document.getElementById('tamamlama-modal');
+    const urunModal = document.getElementById('urun-modal');
+    const bilgiModal = document.getElementById('bilgi-modal');
     const siparisGonderForm = document.getElementById('siparis-gonder-form');
     const homeLinks = document.querySelectorAll('#home-link, .header-title');
 
-    const sepet = {}; // Sepet içeriğini tutacak ana obje
+    let sepet = {}; // Sepet içeriğini tutacak ana obje
 
     // Üçlü slayt gösterisi
     function startSlideshow(container) {
@@ -51,13 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const images = container.querySelectorAll('img');
         let currentIndex = 0;
-        images[currentIndex].classList.add('active');
-
-        setInterval(() => {
-            images[currentIndex].classList.remove('active');
-            currentIndex = (currentIndex + 1) % images.length;
+        if (images.length > 0) {
             images[currentIndex].classList.add('active');
-        }, 4000);
+
+            setInterval(() => {
+                images[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add('active');
+            }, 4000);
+        }
     }
     
     startSlideshow(slideshowContainer1);
@@ -112,9 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const urunId = e.currentTarget.dataset.id;
                 const secilenUrun = urunVerileri.find(u => u.id == urunId);
                 
-                document.getElementById('modal-urun-adi').innerText = secilenUrun.ad;
-                document.getElementById('adet-input').value = 1; // Adet sıfırlama
-                document.getElementById('kilo-input').value = 0.5; // Kilo sıfırlama
+                document.getElementById('urun-modal-adi').innerText = secilenUrun.ad;
+                document.getElementById('adet-input').value = 1;
+                document.getElementById('kilo-input').value = 0.5;
                 urunModal.style.display = 'block';
                 urunModal.querySelector('.add-to-cart-btn').dataset.urunId = urunId;
             });
@@ -122,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Sepete Ekle
-    urunModal.querySelector('.add-to-cart-btn').addEventListener('click', () => {
-        const urunId = urunModal.querySelector('.add-to-cart-btn').dataset.urunId;
+    document.querySelector('.add-to-cart-btn').addEventListener('click', () => {
+        const urunId = document.querySelector('.add-to-cart-btn').dataset.urunId;
         const secilenUrun = urunVerileri.find(u => u.id == urunId);
         let miktar;
         let birim;
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             sepetiGuncelle();
-            urunModal.style.display = 'none'; // Sepete ekleyince pencereyi kapat
+            urunModal.style.display = 'none';
         } else {
             alert('Lütfen geçerli bir miktar girin.');
         }
@@ -182,13 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (toplamUrunSayisi > 0) {
             sepetSayac.style.display = 'block';
-            sepetIkon.style.display = 'block';
-            siparisTamamlaBtn.style.display = 'block';
-            siparisIptalBtn.style.display = 'block';
         } else {
             sepetSayac.style.display = 'none';
-            siparisTamamlaBtn.style.display = 'none';
-            siparisIptalBtn.style.display = 'none';
         }
     }
 
@@ -208,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Siparişi İptal Et
     siparisIptalBtn.addEventListener('click', () => {
-        Object.keys(sepet).forEach(key => delete sepet[key]);
+        sepet = {};
         sepetiGuncelle();
         sepetModal.style.display = 'none';
         alert('Siparişiniz başarıyla iptal edildi.');
@@ -217,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sipariş Tamamlama Modalını Açma
     siparisTamamlaBtn.addEventListener('click', () => {
         sepetModal.style.display = 'none';
-        tamamlamaModal.style.display = 'block';
+        bilgiModal.style.display = 'block';
     });
 
     // Sipariş Formunu Gönderme
@@ -246,20 +243,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Size mail gönderme
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: 'kalsnek123@gmail.com' })
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: 'kalsnek123@gmail.com', from_email: 'kalsnek123@gmail.com' })
             .then(() => {
                 // Müşteriye onay maili gönderme
-                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: formObj.email })
+                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { ...templateParams, to_email: formObj.email, from_email: 'kalsnek123@gmail.com' })
                     .then(() => {
                         alert('Siparişiniz alınmıştır. En kısa sürede sizinle iletişime geçilecektir. Bizi seçtiğiniz için teşekkür ederiz.');
-                        tamamlamaModal.style.display = 'none';
+                        bilgiModal.style.display = 'none';
                         siparisGonderForm.reset();
                         sepet = {};
                         sepetiGuncelle();
                     }, (error) => {
                         console.error('Müşteriye mail gönderilemedi:', error);
                         alert('Siparişiniz alındı ancak onay maili gönderilirken bir hata oluştu.');
-                        tamamlamaModal.style.display = 'none';
+                        bilgiModal.style.display = 'none';
                         siparisGonderForm.reset();
                         sepet = {};
                         sepetiGuncelle();
