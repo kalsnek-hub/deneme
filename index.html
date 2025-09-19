@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Bake With Ekin </title>
+    <title>Bake With Ekin</title>
     <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("YOUR_USER_ID"); // Buraya kendi Email.js kullanıcı ID'nizi girin
+        })();
+    </script>
 </head>
 <body>
 
     <header>
-        <h1> Bake With Ekin </h1>
+        <div class="header-container">
+            <a href="#" id="home-link" class="header-btn">Ana Sayfa</a>
+            <h1 class="header-title">Bake With Ekin</h1>
+        </div>
         <nav>
             <ul>
                 <li><a href="#" data-kategori="tatlilar">Tatlılar</a></li>
@@ -22,14 +31,13 @@
     </header>
 
     <main>
-        <div id="ana-sayfa-resmi">
-            <img src="images/57.jpg" alt="Ana Sayfa Resmi" class="ana-resim">
+        <div id="slideshow-container" class="slideshow">
         </div>
-        
-        <section id="urun-listeleme-alani">
+
+        <section id="urun-listeleme-alani" style="display:none;">
             <h2></h2>
             <div id="urun-listesi-container" class="urun-listesi">
-                </div>
+            </div>
         </section>
     </main>
 
@@ -37,6 +45,10 @@
         <div id="siparis-formu">
             <h2>Siparişiniz</h2>
             <ul id="siparis-listesi"></ul>
+            <div id="siparis-ozet" style="display: none;">
+                <p>Toplam Ürün Sayısı: <span id="toplam-urun">0</span></p>
+                <p>Tahmini Toplam Tutar: <span id="toplam-tutar">0</span> TL</p>
+            </div>
             <button id="tamamla-btn" style="display: none;">Siparişi Tamamla</button>
         </div>
     </footer>
@@ -52,10 +64,12 @@
             <div id="adet-tab" class="tab-content active">
                 <p>Adet giriniz:</p>
                 <input type="number" id="adet-input" min="1" value="1">
+                <p>Birim Fiyat: <span id="adet-fiyat">0</span> TL</p>
             </div>
             <div id="kilo-tab" class="tab-content">
                 <p>Kilo giriniz:</p>
                 <input type="number" id="kilo-input" min="0.1" step="0.1" value="0.5">
+                <p>Kilo Fiyat: <span id="kilo-fiyat">0</span> TL</p>
             </div>
             <button class="add-to-cart-btn">Sepete Ekle</button>
         </div>
@@ -64,14 +78,42 @@
     <div id="tamamlama-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Sipariş Özeti</h2>
-            <ul id="tamamlama-listesi"></ul>
-            <button id="onayla-btn">Bilgileri Gir ve Siparişi Onayla</button>
+            <h2>Sipariş Bilgileri</h2>
+            <form id="siparis-gonder-form">
+                <label for="ad-soyad">Adınız Soyadınız:</label><br>
+                <input type="text" id="ad-soyad" name="ad_soyad" required><br>
+
+                <label for="email">E-posta Adresiniz:</label><br>
+                <input type="email" id="email" name="email" required><br>
+
+                <label for="telefon">Telefon Numaranız:</label><br>
+                <input type="tel" id="telefon" name="telefon" required><br>
+                
+                <label for="adres">Teslimat Adresiniz:</label><br>
+                <textarea id="adres" name="adres" rows="3" required></textarea><br>
+
+                <label for="notlar">Sipariş Notları:</label><br>
+                <textarea id="notlar" name="notlar" rows="3"></textarea><br>
+
+                <label for="teslimat">Teslimat Şekli:</label><br>
+                <select id="teslimat" name="teslimat">
+                    <option value="adrese_teslim">Adrese Teslim</option>
+                    <option value="kendim_alacagim">Kendim Alacağım</option>
+                </select><br>
+
+                <label for="odeme">Ödeme Şekli:</label><br>
+                <select id="odeme" name="odeme">
+                    <option value="kapida_odeme">Kapıda Ödeme</option>
+                    <option value="havale">EFT/Havale</option>
+                </select><br>
+                
+                <input type="hidden" name="siparis_ozet" id="siparis-ozet-field">
+
+                <button type="submit" id="gonder-btn">Siparişi Onayla ve Gönder</button>
+            </form>
         </div>
     </div>
     
     <script src="script.js"></script>
 </body>
 </html>
-
-
